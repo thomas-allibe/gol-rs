@@ -1,3 +1,7 @@
+//use termion::color;
+
 fn main() {
-    println!("Hello, world!");
+    // Get terminal size
+    let (tcols, trows) = termion::terminal_size().unwrap();
+    println!("Columns: {}, Lines: {}", tcols, trows);
 }
