@@ -42,10 +42,9 @@ fn main() {
     // let mut cell_matrix: CellMatrix::from();
 
     thread::sleep(time::Duration::from_secs(3));
-}
 
-struct CellMatrix {
-    matrix: Vec<Vec<bool>>,
+    let mut game = GameOfLife::new(tcols, trows);
+    game.run();
 }
 
 //
@@ -60,25 +59,57 @@ struct Cell {
     y: usize,
 }
 
-impl CellMatrix {
-    fn init(rows: usize, cols: usize, cells: Vec<Cell>) -> Self {
+enum GolState {
+    WaitingInput,
+    Configuring(Vec<Cell>),
+    Advancing,
+    Waiting(f64),
+}
+
+struct GameOfLife {
+    state: GolState,
+    board: Vec<Vec<bool>>,
+    ncols: usize,
+    nrows: usize,
+}
+
+impl GameOfLife {
+    fn new(rows: usize, cols: usize) -> Self {
         // Allocate a matrix full of false values
-        let mut matrix: Vec<Vec<bool>> = Vec::with_capacity(rows);
+        let mut board: Vec<Vec<bool>> = Vec::with_capacity(rows);
         for _ in 0..rows {
-            matrix.push(vec![false; cols]);
+            board.push(vec![false; cols]);
         }
 
-        cells.iter().for_each(|c| {
-            if c.x > cols || c.y > rows {
-                // return error
-            }
-            matrix[c.y][c.x] = true
-        });
-
-        Self {
-            matrix: vec![vec![true, false]],
+        GameOfLife {
+            state: GolState::WaitingInput,
+            board: board,
+            ncols: cols,
+            nrows: rows,
         }
     }
 
-    fn draw(&self) -> () {}
+    fn run(&mut self) -> &mut Self {
+        match &self.state {
+            GolState::WaitingInput => {
+                println!("WaitInput");
+            }
+            GolState::Configuring(cells) => {
+                println!("Setup");
+                cells.iter().for_each(|c| {
+                    if c.x > self.ncols || c.y > self.nrows {
+                        // return error
+                    }
+                    self.board[c.y][c.x] = true
+                });
+            }
+            GolState::Advancing => {
+                println!("Step");
+            }
+            GolState::Waiting(time) => {
+                println!("Pause: {}", time);
+            }
+        }
+        self
+    }
 }
